@@ -102,3 +102,12 @@ class VectorStoreBase(ABC):
             List of result lists, one per query.
         """
         return [self.search(q, v, top_k=top_k, filters=filters) for q, v in zip(queries, vectors_list)]
+
+    def close(self) -> None:
+        """Release resources the store holds (connection pools, clients).
+
+        Default is a no-op so callers can close owned stores unconditionally;
+        providers that hold resources override this. Ownership (shared vs
+        internally created resources) is the provider's responsibility.
+        """
+        return None

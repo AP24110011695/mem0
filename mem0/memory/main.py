@@ -2176,7 +2176,15 @@ class Memory(MemoryBase):
         display_first_run_notice(self, "sync", "reset")
 
     def close(self):
-        """Release resources held by this Memory instance (SQLite connections, etc.)."""
+        """Release resources held by this Memory instance (vector store connections, SQLite, etc.)."""
+        for store_name in ("vector_store", "_telemetry_vector_store", "_entity_store"):
+            store = getattr(self, store_name, None)
+            if store is None:
+                continue
+            try:
+                store.close()
+            except Exception as e:
+                logger.warning("Failed to close %s: %s", store_name, e)
         if hasattr(self, "db") and self.db is not None:
             self.db.close()
             self.db = None
@@ -3900,7 +3908,15 @@ class AsyncMemory(MemoryBase):
         await display_first_run_notice_async(self, "async", "reset")
 
     def close(self):
-        """Release resources held by this AsyncMemory instance."""
+        """Release resources held by this AsyncMemory instance (vector store connections, SQLite, etc.)."""
+        for store_name in ("vector_store", "_telemetry_vector_store", "_entity_store"):
+            store = getattr(self, store_name, None)
+            if store is None:
+                continue
+            try:
+                store.close()
+            except Exception as e:
+                logger.warning("Failed to close %s: %s", store_name, e)
         if hasattr(self, "db") and self.db is not None:
             self.db.close()
             self.db = None
